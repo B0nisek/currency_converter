@@ -1,12 +1,29 @@
 import sys, getopt, json, requests
 from bs4 import BeautifulSoup
 
+'''
+validate_currency(currency)
 
-def valid_currency(currency):
+currency - given currency
+
+currency needs to be 3 chars long and contain only alpha
+'''
+
+
+def validate_currency(currency):
     if not currency.isalpha():
         raise ValueError("Currency should contain only letters")
     if len(currency) is not 3:
         raise ValueError("Currency should be 3 letters long")
+
+
+'''
+convert(amount, currency_input, currency_output)
+
+converts given amount of currency input
+
+returns a dictionary with converted prices {currency:converted price}
+'''
 
 
 def convert(amount, currency_input, currency_output):
@@ -21,7 +38,17 @@ def convert(amount, currency_input, currency_output):
     return result
 
 
-def get_currency_dictionary(currency_input, currency_output=None):
+'''
+get_currency_dictionary(currency_input, currency_output)
+
+scrapes data from web to get a dictionary filled with results depending on currency output.
+if currency output is not given returns result with all loaded currencies
+
+returns a dictionary {currency:price} format
+'''
+
+
+def get_currency_dictionary(currency_input, currency_output):
     currency_dict = {}
     url_to_scrape = 'http://www.xe.com/currencytables/?from=' + currency_input
     r = requests.get(url_to_scrape)
@@ -41,6 +68,16 @@ def get_currency_dictionary(currency_input, currency_output=None):
 
     return currency_dict
 
+'''
+create_json(amount, currency_input, result)
+
+amount - float from command line, input
+currency_input - input currency
+result - dictionary with results {currency:price}
+
+returns json formated string
+'''
+
 
 def create_json(amount, currency_input, result):
     my_json = '{"input": {"amount": %s, "currency": "%s"}, "output": ' % (amount, currency_input)
@@ -50,6 +87,15 @@ def create_json(amount, currency_input, result):
     parsed = json.loads(my_json)
 
     return json.dumps(parsed, indent=4, sort_keys=True)
+
+'''
+get_options()
+
+gets and parses options from command line. expects correct arguments. unexpected arguments raises an exception
+which is not handled
+
+returns arguments in following order amount, input_currency, output_currency
+'''
 
 
 def get_options():
@@ -72,6 +118,14 @@ def get_options():
 
 def main():
     amount, currency_input, currency_output = get_options()
+
+    try:
+        validate_currency(currency_input)
+        if currency_output is not None:
+            validate_currency(currency_output)
+    except ValueError as ex:
+        print(ex)
+        return -1
 
     result = convert(amount, currency_input, currency_output)
 
