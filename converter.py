@@ -1,6 +1,4 @@
-import sys
-import json
-import requests
+import sys, getopt, json, requests
 from bs4 import BeautifulSoup
 
 
@@ -54,17 +52,30 @@ def create_json(amount, currency_input, result):
     return json.dumps(parsed, indent=4, sort_keys=True)
 
 
-def main():
-    amount = float(sys.argv[2])
-    currency_input = sys.argv[4]
-    currency_output = None
+def get_options():
+    opts, args = getopt.getopt(sys.argv[1:], 'a:i:o:', ['amount=', 'input_currency=', 'output_currency='])
 
-    if len(sys.argv) > 5:
-        currency_output = sys.argv[6]
+    input_currency = None
+    amount = None
+    output_currency = None
+
+    for opt, arg in opts:
+        if opt in ("-a", "--amount"):
+            amount = float(arg)
+        elif opt in ("-i", "--input_currency"):
+            input_currency = arg
+        elif opt in ("-o", "--output_currency"):
+            output_currency = arg
+
+    return amount, input_currency, output_currency
+
+
+def main():
+    amount, currency_input, currency_output = get_options()
 
     result = convert(amount, currency_input, currency_output)
 
-    json_result = create_json(sys.argv[2], currency_input, result)
+    json_result = create_json(str(amount), currency_input, result)
 
     print(json_result)
 
