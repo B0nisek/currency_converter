@@ -11,10 +11,10 @@ currency needs to be 3 chars long and contain only alpha
 
 
 def validate_currency(currency):
-    if not currency.isalpha():
-        raise ValueError("Currency should contain only letters")
     if len(currency) is not 3:
         raise ValueError("Currency should be 3 letters long")
+    if not currency.isalpha():
+        raise ValueError("Currency should contain only letters")
 
 
 '''
